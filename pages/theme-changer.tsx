@@ -1,3 +1,7 @@
+import React, { ChangeEvent, FC, useEffect, useState } from "react";
+import { GetServerSideProps } from "next";
+import Cookies from "js-cookie";
+import { Layout } from "../components/layouts";
 import {
   Card,
   CardContent,
@@ -7,14 +11,20 @@ import {
   Radio,
   RadioGroup,
 } from "@mui/material";
-import React, { ChangeEvent, useState } from "react";
-import { Layout } from "../components/layouts";
 
-const ThemeChangerPage = () => {
-  const [currenTheme, setCurrenTheme] = useState("Dark");
+const ThemeChangerPage: FC<any> = ({ theme }) => {
+  const [currenTheme, setCurrenTheme] = useState(theme);
+
   const onThemeChange = (event: ChangeEvent<HTMLInputElement>) => {
-    setCurrenTheme(event.target.value);
+    const currentTheme = event.target.value;
+
+    setCurrenTheme(currentTheme);
+    Cookies.set("theme", currentTheme);
   };
+
+  useEffect(() => {
+    console.log(theme);
+  }, []);
 
   return (
     <Layout>
@@ -44,6 +54,19 @@ const ThemeChangerPage = () => {
       </Card>
     </Layout>
   );
+};
+
+// You should use getServerSideProps when:
+// - Only if you need to pre-render a page whose data must be fetched at request time
+
+export const getServerSideProps: GetServerSideProps = async ({ req }) => {
+  const { theme = "Light" } = req.cookies;
+
+  return {
+    props: {
+      theme,
+    },
+  };
 };
 
 export default ThemeChangerPage;
